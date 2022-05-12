@@ -180,10 +180,10 @@ xmlhttp.open("GET", theUrl);
 xmlhttp.setRequestHeader("Authorization", "Bearer "+ TOKEN);
 
 xmlhttp.onreadystatechange = function() {
-     if (this.readyState == 4 && this.status == 200) {
+     
        console.log(this.responseText,"KEYRESPONSE");
 var obj = JSON.parse(this.responseText);
-     }
+     
    };
 
 xmlhttp.send();
