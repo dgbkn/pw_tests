@@ -9,104 +9,150 @@
 
 <body>
   <video id="videojs-contrib-eme-player" style="width: 100%; height: 600px" class="video-js vjs-default-skin" controls>
-    <source src="https://penpencil.pc.cdn.bitgravity.com/c25250fc-d702-4f47-8199-d1efbecabe51/master.mpd"
-      type="application/dash+xml" />
+    <!-- <source src="https://penpencil.pc.cdn.bitgravity.com/c25250fc-d702-4f47-8199-d1efbecabe51/master.mpd" type="application/dash+xml" /> -->
+    <source src="https://d1d34p8vz63oiq.cloudfront.net/2b8feb5a-39ba-4de5-bf84-6d3feb1f18be/master.mpd" type="application/dash+xml" />
   </video>
   <ul></ul>
   <script src="https://vjs.zencdn.net/7.6.6/video.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/videojs-contrib-eme@4.0.1/dist/videojs-contrib-eme.js"></script>
   <script>
 
-// https://d1d34p8vz63oiq.cloudfront.net/2b8feb5a-39ba-4de5-bf84-6d3feb1f18be/master.mpd TODO
+    // https://d1d34p8vz63oiq.cloudfront.net/2b8feb5a-39ba-4de5-bf84-6d3feb1f18be/master.mpd TODO
+
+    function hexToBase64(str) {
+      return btoa(
+        String.fromCharCode.apply(
+          null,
+          str
+            .replace(/\r|\n/g, "")
+            .replace(/([\da-fA-F]{2}) ?/g, "0x$1 ")
+            .replace(/ +$/, "")
+            .split(" ")
+        )
+      )
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=*$/, "");
+    }
+
+    function base64ToHex(str) {
+      str = str.replace(/\-/g, "+").replace(/\_/g, "/");
+      for (
+        var i = 0, bin = atob(str.replace(/[ \r\n]+$/, "")), hex = [];
+        i < bin.length;
+        ++i
+      ) {
+        let tmp = bin.charCodeAt(i).toString(16);
+        if (tmp.length === 1) tmp = "0" + tmp;
+        hex[hex.length] = tmp;
+      }
+      return hex.join("");
+    }
+
+    function base64ToHexOld(str) {
+      for (
+        var i = 0, bin = atob(str.replace(/[ \r\n]+$/, "")), hex = [];
+        i < bin.length;
+        ++i
+      ) {
+        let tmp = bin.charCodeAt(i).toString(16);
+        if (tmp.length === 1) tmp = "0" + tmp;
+        hex[hex.length] = tmp;
+      }
+      return hex.join("");
+    }
+
+
+
+    //Video Service Functions
+    // example: this.videoLicenseService.encrypt(this.globalService.accessToken, this.videoLicenseService.base64ToHex(e.kids[0]))
+
+    var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 + /="
+
+    function encrypt(e, t) { return t = xor_encrypt(e, t), b64_encode(t) }
+
+    function decrypt(e, t) { return t = b64_decode(t), xor_decrypt(e, t) }
+
+
+    function xor_encrypt(e, t) {
+      return Object.assign([], t).map(
+        (t, i) => t.charCodeAt(0) ^ keyCharAt(e, i)
+      );
+    }
+
+    function xor_decrypt(e, t) {
+      return Object.assign([], t)
+        .map((t, i) => String.fromCharCode(t ^ keyCharAt(e, i)))
+        .join("");
+    }
+
+    function keyCharAt(e, t) { return e.charCodeAt(Math.floor(t % e.length)) }
+
+    function b64_encode(e) {
+      let t, i, r, n, s, o, a, c, h, l = 0, p = "";
+      if (!e) return e; do { t = e[l++], i = e[l++], r = e[l++], c = t << 16 | i << 8 | r, n = c >> 18 & 63, s = c >> 12 & 63, o = c >> 6 & 63, a = 63 & c, p += b64.charAt(n) + b64.charAt(s) + b64.charAt(o) + b64.charAt(a) } while (l < e.length); return h = e.length % 3, (h ? p.slice(0, h - 3) : p) + " === ".slice(h || 3)
+    }
+
+    function b64_decode(e) {
+      let t, i, r, n, s, o, a, c, h = 0, l = [];
+      if (!e) return e;
+      e += ""; do { n = b64.indexOf(e.charAt(h++)), s = b64.indexOf(e.charAt(h++)), o = b64.indexOf(e.charAt(h++)), a = b64.indexOf(e.charAt(h++)), c = n << 18 | s << 12 | o << 6 | a, t = c >> 16 & 255, i = c >> 8 & 255, r = 255 & c, l.push(t), 64 !== o && (l.push(i), 64 !== a && l.push(r)) } while (h < e.length); return l
+    }
+    //Video Service Functions 
+    //TO FIND : this.b64="
+
+
+
 
     (function (window, videojs) {
 
-      function hexToBase64(str) {
-        return btoa(
-          String.fromCharCode.apply(
-            null,
-            str
-              .replace(/\r|\n/g, "")
-              .replace(/([\da-fA-F]{2}) ?/g, "0x$1 ")
-              .replace(/ +$/, "")
-              .split(" ")
-          )
-        )
-          .replace(/\+/g, "-")
-          .replace(/\//g, "_")
-          .replace(/=*$/, "");
-      }
-
-      function base64ToHex(str) {
-        str = str.replace(/\-/g, "+").replace(/\_/g, "/");
-        for (
-          var i = 0, bin = atob(str.replace(/[ \r\n]+$/, "")), hex = [];
-          i < bin.length;
-          ++i
-        ) {
-          let tmp = bin.charCodeAt(i).toString(16);
-          if (tmp.length === 1) tmp = "0" + tmp;
-          hex[hex.length] = tmp;
-        }
-        return hex.join("");
-      }
-
-      function base64ToHexOld(str) {
-        for (
-          var i = 0, bin = atob(str.replace(/[ \r\n]+$/, "")), hex = [];
-          i < bin.length;
-          ++i
-        ) {
-          let tmp = bin.charCodeAt(i).toString(16);
-          if (tmp.length === 1) tmp = "0" + tmp;
-          hex[hex.length] = tmp;
-        }
-        return hex.join("");
-      }
-
-
-
-      //Video Service Functions
-       // example: this.videoLicenseService.encrypt(this.globalService.accessToken, this.videoLicenseService.base64ToHex(e.kids[0]))
-
-      var b64="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 + /="
-
-      function encrypt(e, t) { return t = xor_encrypt(e, t), b64_encode(t) }
-
-      function decrypt(e, t) { return t = b64_decode(t), xor_decrypt(e, t) }
-
-
-      function xor_encrypt(e, t) {
-        return Object.assign([], t).map(
-          (t, i) => t.charCodeAt(0) ^ keyCharAt(e, i)
-        );
-      }
-
-      function xor_decrypt(e, t) {
-        return Object.assign([], t)
-          .map((t, i) => String.fromCharCode(t ^ keyCharAt(e, i)))
-          .join("");
-      }
-
-      function keyCharAt(e, t) { return e.charCodeAt(Math.floor(t % e.length)) }
-
-      function b64_encode(e) {
-        let t, i, r, n, s, o, a, c, h, l = 0, p = "";
-        if (!e) return e; do { t = e[l++], i = e[l++], r = e[l++], c = t << 16 | i << 8 | r, n = c >> 18 & 63, s = c >> 12 & 63, o = c >> 6 & 63, a = 63 & c, p += b64.charAt(n) + b64.charAt(s) + b64.charAt(o) + b64.charAt(a) } while (l < e.length); return h = e.length % 3, (h ? p.slice(0, h - 3) : p) + " === ".slice(h || 3)
-      }
-
-      function b64_decode(e) {
-        let t, i, r, n, s, o, a, c, h = 0, l = [];
-        if (!e) return e;
-        e += ""; do { n = b64.indexOf(e.charAt(h++)), s = b64.indexOf(e.charAt(h++)), o = b64.indexOf(e.charAt(h++)), a = b64.indexOf(e.charAt(h++)), c = n << 18 | s << 12 | o << 6 | a, t = c >> 16 & 255, i = c >> 8 & 255, r = 255 & c, l.push(t), 64 !== o && (l.push(i), 64 !== a && l.push(r)) } while (h < e.length); return l
-      }
-      //Video Service Functions 
-      //TO FIND : this.b64="
 
 
 
 
+      // TOKEN = "6c568b656920a4ffff4fb8185873c499f50e300f53f8b82bfefd6adb061cf43c";
+      // KEY = "9f8cdd9acf834a98aa6f902adc020522";
+      // let player = (window.player = videojs("videojs-contrib-eme-player", {
+      //   plugins: {
+      //     eme: {
+      //       keySystems: {
+      //         "org.w3.clearkey": {
+      //           videoContentType: 'video/mp4;codecs="avc1.42c01e"',
+      //           audioContentType: 'audio/mp4;codecs="mp4a.40.2"',
+      //           getLicense: (emeOptions, keyMessage, callback) => {
+      //             // console.log('emeOptions: ', emeOptions);
+      //             // console.log('keyMessage: ', keyMessage);
+      //             // Parse the clearkey license request.
+      //             let request = JSON.parse(
+      //               new TextDecoder().decode(keyMessage)
+      //             );
 
+      //             // console.log('request', request);
+      //             // console.log('key_id:', this.base64ToHex(request.kids[0]));
+      //             let keyObj = {
+      //               kty: "oct",
+      //               kid: request.kids[0],
+      //               k: hexToBase64(KEY) // This key sould be come from server
+      //             };
+
+      //             // console.log('keys', JSON.stringify(keyObj), this.base64ToHex(request.kids[0]), this.KEY);
+      //             callback(
+      //               null,
+      //               new TextEncoder().encode(
+      //                 JSON.stringify({
+      //                   keys: [keyObj]
+      //                 })
+      //               )
+      //             );
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      // }));
+
+
+      TOKEN = "6c568b656920a4ffff4fb8185873c499f50e300f53f8b82bfefd6adb061cf43c";
       KEY = "9f8cdd9acf834a98aa6f902adc020522";
       let player = (window.player = videojs("videojs-contrib-eme-player", {
         plugins: {
@@ -122,6 +168,11 @@
                   let request = JSON.parse(
                     new TextDecoder().decode(keyMessage)
                   );
+                  r = {
+                    key: encrypt(TOKEN, base64ToHex(request.kids[0]))
+                  };
+                  console.log(r,"THE REQUEST");
+
                   // console.log('request', request);
                   // console.log('key_id:', this.base64ToHex(request.kids[0]));
                   let keyObj = {
@@ -145,7 +196,17 @@
           }
         }
       }));
+
+
+
+
+
+
+
+
     })(window, window.videojs);
+
+
 
       // this.globalService.accessToken ->  Bearer . Token
 
